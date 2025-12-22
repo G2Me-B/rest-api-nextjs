@@ -34,3 +34,46 @@ export const GET = async (request: Request) => {
         return new NextResponse("Error in fetching categories: " + (error instanceof Error ? error.message : String(error)), { status: 500 });
     }
 }
+
+export const POST = async (request: Request) => {
+    try {
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('userId');
+
+        const { title} = await request.json();
+
+        if (!userId || !Types.ObjectId.isValid(userId)) {
+            return new NextResponse(
+                JSON.stringify({ message: "Invalid or missing userId" }),
+                { status: 400 }
+            );
+        }
+        
+        if (!title) {
+            return new NextResponse(
+                JSON.stringify({ message: "Category title is required" }),
+                { status: 400 }
+            );
+        }
+
+        await connect();
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return new NextResponse(
+                JSON.stringify({ message: "User not found in the database" }),
+                { status: 400 }
+            );
+        }
+        const newCategory = new Category({
+            title,
+            user: new Types.ObjectId(userId),
+        });
+        await newCategory.save();
+        
+        return new NextResponse(JSON.stringify({ message: "Category created successfully", category: newCategory }), { status: 201 });
+        
+    } catch (error: unknown) {
+        return new NextResponse("Error in creating category: " + (error instanceof Error ? error.message : String(error)), { status: 500 });
+    }
+}
