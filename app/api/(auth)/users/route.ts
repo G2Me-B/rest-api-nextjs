@@ -3,6 +3,7 @@ import connect from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { Types } from 'mongoose';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const ObjectId = require("mongoose").Types.ObjectId;
 
 export const GET = async () => {
