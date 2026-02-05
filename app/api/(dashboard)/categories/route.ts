@@ -9,14 +9,14 @@ export const GET = async (request: Request) => {
     try {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
-
+        
         if (!userId || !Types.ObjectId.isValid(userId)) {
             return new NextResponse(
                 JSON.stringify({ message: "Invalid or missing userId" }),
                 { status: 400 }
             );
         }
-
+        
         await connect();
         const user = await User.findById(userId);
         if (!user) {
@@ -77,3 +77,4 @@ export const POST = async (request: Request) => {
         return new NextResponse("Error in creating category: " + (error instanceof Error ? error.message : String(error)), { status: 500 });
     }
 }
+

@@ -5,8 +5,9 @@ import { NextResponse } from 'next/server';
 import { Types } from 'mongoose';
 
 
-export const PATCH = async (request: Request, context: { params: { category: string } }) => {
-    const categoryId = context.params.category;
+export const PATCH = async (request: Request, {params}: { params:Promise<{ category: string }> }) => {
+    const categoryId = (await params).category
+    console.log("Category ID:", categoryId);
     try {
         const body = await request.json();
         const { title } = body;
@@ -23,7 +24,7 @@ export const PATCH = async (request: Request, context: { params: { category: str
 
         if (!categoryId || !Types.ObjectId.isValid(categoryId)) {
             return new NextResponse(
-                JSON.stringify({ message: "categoryId and newTitle are required" }),
+                JSON.stringify({ message: "Invalid or missing categoryId" }),
                 { status: 400 }
             );
         }
@@ -52,18 +53,18 @@ export const PATCH = async (request: Request, context: { params: { category: str
         )
 
         return new NextResponse(JSON.stringify({ message: "Category updated successfully", category: updatedCategory }), { status: 200 });
-        
+
     } catch (error: unknown) {
         return new NextResponse("Error in updating category: " + (error instanceof Error ? error.message : String(error)), { status: 500 });
     }
 }
 
-export const DELETE = async (request: Request, context: { params: { category: string } }) => {
-    const categoryId = context.params.category;
+export const DELETE = async (request: Request, {params}: { params: { category: string } }) => {
+    const categoryId = params.category;
     try {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
-        
+
         if (!userId || !Types.ObjectId.isValid(userId)) {
             return new NextResponse(
                 JSON.stringify({ message: "Invalid or missing userId" }),

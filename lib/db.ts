@@ -17,12 +17,14 @@ const connect = async () => {
         return;
     }
     try {
-        mongoose.connect(MONGODB_URI,{
-            dbName: 'rest_api_nextjs',
+        mongoose.connect(MONGODB_URI!,{
+            dbName: 'rest-api-nextjs',
             bufferCommands: true,
         });
-    } catch (error) {
+        console.log('MongoDB connected successfully.');
+    } catch (error: unknown) {
         console.error('Error connecting to MongoDB:', error);
+        throw new Error("Error connecting to MongoDB: " + error);
     }
 }
 
