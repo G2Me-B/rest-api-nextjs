@@ -59,8 +59,8 @@ export const PATCH = async (request: Request, {params}: { params:Promise<{ categ
     }
 }
 
-export const DELETE = async (request: Request, {params}: { params: { category: string } }) => {
-    const categoryId = params.category;
+export const DELETE = async (request: Request, {params}: { params:Promise<{ category: string }> }) => {
+    const categoryId = (await params).category;
     try {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
