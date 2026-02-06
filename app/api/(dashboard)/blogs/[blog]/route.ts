@@ -64,3 +64,57 @@ export const GET = async (request: Request, { params }: { params: Promise<{ blog
         return new NextResponse("Error in fetching the blog " + (error instanceof Error ? error.message : "Error in fetching the blog"), { status: 500 });
     }
 }
+
+export const PATCH = async (request: Request, { params }: { params: Promise<{ blog: string }> }) => {
+    const blogId = (await params).blog;
+    console.log("blogId: ", blogId);
+    try {
+        const { title, description } = await request.json();
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('userId');
+
+
+        if (!userId || !Types.ObjectId.isValid(userId)) {
+            return new NextResponse(
+                JSON.stringify({ message: "Invalid or missing userId" }),
+                { status: 400 }
+            );
+        }
+
+
+        if (!blogId || !Types.ObjectId.isValid(blogId)) {
+            return new NextResponse(
+                JSON.stringify({ message: "Invalid or missing blogId" }),
+                { status: 400 }
+            );
+        }
+
+        await connect();
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return new NextResponse(
+                JSON.stringify({ message: "User not found in the database" }),
+                { status: 404 }
+            );
+        }
+
+        const blog = await Blog.findOne({ _id: blogId, user: userId });
+        if (!blog) {
+            return new NextResponse(
+                JSON.stringify({ message: "Blog not found in the database" }),
+                { status: 404 }
+            );
+        }
+
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            blogId,
+            { title, description },
+            { new: true }
+        )
+
+        return new NextResponse(JSON.stringify({ message: "Blog updated successfully", blog: updatedBlog }), { status: 200 });
+    } catch (error: unknown) {
+        return new NextResponse("Error in fetching the blog " + (error instanceof Error ? error.message : "Error in fetching the blog"), { status: 500 });
+    }
+}
